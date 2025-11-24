@@ -1,0 +1,40 @@
+{
+  "name": "office-connect",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
+  "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
+    "@types/leaflet": "^1.9.21",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.1.2",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.554.0",
+    "next": "16.0.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-leaflet": "^5.0.0",
+    "react-quill-new": "^3.6.0"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.10.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.3",
+    "prisma": "^5.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

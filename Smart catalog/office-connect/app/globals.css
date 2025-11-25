@@ -1,3 +1,5 @@
+@import 'react-quill-new/dist/quill.snow.css';
+
 :root {
   --background: #fdfbf7;
   --foreground: #1e1e1e;

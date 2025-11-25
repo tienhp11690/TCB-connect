@@ -4,7 +4,12 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import RichTextEditor from '@/components/RichTextEditor';
-import LocationMapPicker from '@/components/LocationMapPicker';
+import dynamic from 'next/dynamic';
+
+const LocationMapPicker = dynamic(() => import('@/components/LocationMapPicker'), {
+    ssr: false,
+    loading: () => <div style={{ padding: '1rem', background: '#f5f5f5', borderRadius: '0.5rem', minHeight: '300px' }}>Loading map...</div>
+});
 
 export default function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);

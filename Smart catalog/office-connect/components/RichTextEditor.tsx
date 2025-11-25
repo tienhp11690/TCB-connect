@@ -14,11 +14,6 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
 
     useEffect(() => {
         setIsClient(true);
-
-        // Dynamically import CSS only on client side
-        if (typeof window !== 'undefined') {
-            import('react-quill-new/dist/quill.snow.css');
-        }
     }, []);
 
     const ReactQuill = useMemo(

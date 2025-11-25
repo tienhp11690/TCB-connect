@@ -60,6 +60,7 @@ model Event {
   longitude       Float?
   maxParticipants Int      @default(10)
   description     String?  // Rich text content
+  bannerUrl       String?  // URL for the event banner image
   attachments     String?  // JSON array of file URLs
   createdAt       DateTime @default(now())
 

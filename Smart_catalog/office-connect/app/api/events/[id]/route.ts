@@ -59,7 +59,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
 
     try {
-        const { startTime, endTime, location, latitude, longitude, maxParticipants, description, attachments } = await request.json();
+        const { startTime, endTime, location, latitude, longitude, maxParticipants, description, attachments, bannerUrl } = await request.json();
 
         // Check if user is the host
         const event = await prisma.event.findUnique({
@@ -86,6 +86,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
                 longitude: longitude != null ? (typeof longitude === 'number' ? longitude : parseFloat(longitude)) : null,
                 maxParticipants: parseInt(maxParticipants),
                 description: description || '',
+                bannerUrl: bannerUrl || null,
                 attachments: attachments ? JSON.stringify(attachments) : null,
             },
         });

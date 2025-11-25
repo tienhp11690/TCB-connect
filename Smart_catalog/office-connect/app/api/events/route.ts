@@ -6,16 +6,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const activityTypeId = searchParams.get('activityTypeId');
 
-    if (!activityTypeId) {
-        return NextResponse.json({ error: 'Activity Type ID required' }, { status: 400 });
-    }
-
     try {
+        const whereClause = activityTypeId ? { activityTypeId } : {};
+
         const events = await prisma.event.findMany({
-            where: { activityTypeId },
+            where: whereClause,
             include: {
                 host: { select: { id: true, username: true, avatarUrl: true } },
                 participants: { include: { user: { select: { id: true, username: true, avatarUrl: true } } } },
+                activityType: { select: { name: true, imageUrl: true } }
             },
             orderBy: { startTime: 'asc' },
         });
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     try {
-        const { activityTypeId, startTime, endTime, location, latitude, longitude, maxParticipants, description, attachments } = await request.json();
+        const { activityTypeId, startTime, endTime, location, latitude, longitude, maxParticipants, description, attachments, bannerUrl } = await request.json();
 
         // Validate end time is after start time
         if (new Date(endTime) <= new Date(startTime)) {
@@ -50,6 +49,7 @@ export async function POST(request: Request) {
                 longitude: longitude != null ? (typeof longitude === 'number' ? longitude : parseFloat(longitude)) : null,
                 maxParticipants: parseInt(maxParticipants),
                 description: description || '',
+                bannerUrl: bannerUrl || null,
                 attachments: attachments ? JSON.stringify(attachments) : null,
                 participants: {
                     create: { userId: session.user.id } // Host is automatically a participant

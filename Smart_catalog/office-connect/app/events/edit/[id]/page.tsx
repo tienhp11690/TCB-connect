@@ -24,8 +24,10 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
         longitude: null as number | null,
         maxParticipants: 10,
         description: '',
+        bannerUrl: '',
         attachments: [] as string[],
     });
+    const [uploadingBanner, setUploadingBanner] = useState(false);
 
     useEffect(() => {
         fetchEvent();
@@ -44,10 +46,35 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 longitude: data.longitude ?? null,
                 maxParticipants: data.maxParticipants,
                 description: data.description || '',
+                bannerUrl: data.bannerUrl || '',
                 attachments: attachments,
             });
         }
         setLoading(false);
+    };
+
+    const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingBanner(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.success) {
+                setForm({ ...form, bannerUrl: data.url });
+            }
+        } catch (error) {
+            console.error('Banner upload failed', error);
+            alert('Failed to upload banner');
+        }
+        setUploadingBanner(false);
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +135,59 @@ export default function EditEventPage({ params }: { params: Promise<{ id: string
                 <h1 style={{ marginBottom: '1.5rem' }}>Edit Event</h1>
 
                 <form onSubmit={handleSubmit}>
+                    {/* Banner Upload */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Event Banner (Optional)</label>
+                        <div style={{
+                            border: '2px dashed #ccc',
+                            borderRadius: '0.5rem',
+                            padding: '1rem',
+                            textAlign: 'center',
+                            position: 'relative',
+                            background: form.bannerUrl ? `url(${form.bannerUrl}) center/cover no-repeat` : '#f9f9f9',
+                            height: '200px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            {!form.bannerUrl && (
+                                <>
+                                    <p style={{ marginBottom: '0.5rem', color: '#666' }}>Upload a banner image (16:9 recommended)</p>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleBannerUpload}
+                                        style={{ position: 'absolute', width: '100%', height: '100%', opacity: 0, cursor: 'pointer', top: 0, left: 0 }}
+                                    />
+                                    <button type="button" className="btn btn-secondary" disabled={uploadingBanner}>
+                                        {uploadingBanner ? 'Uploading...' : 'Choose Image'}
+                                    </button>
+                                </>
+                            )}
+                            {form.bannerUrl && (
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, bannerUrl: '' })}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '10px',
+                                        right: '10px',
+                                        background: 'rgba(0,0,0,0.5)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: '30px',
+                                        height: '30px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                     <div>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Start Date & Time</label>
                         <input

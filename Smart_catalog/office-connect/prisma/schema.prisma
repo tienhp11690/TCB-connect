@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  email     String?  @unique
+  avatarUrl String?
+  role      String   @default("user") // "user" or "admin"
+  
+  // Profile Fields
+  fullName          String?
+  gender            String?
+  birthYear         Int?
+  maritalStatus     String?
+  workUnit          String?
+  homeAddress       String?
+  officeAddress     String?
+  homeCoordinates   String? // "lat,lng"
+  officeCoordinates String? // "lat,lng"
+
+  createdAt DateTime @default(now())
+  
+  hostedEvents Event[] @relation("Host")
+  participations EventParticipant[]
+  favorites    ActivityType[] @relation("UserFavorites")
+  comments     Comment[]
+}
+
+model ActivityType {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  
+  events      Event[]
+  favoritedBy User[] @relation("UserFavorites")
+}
+
+model Event {
+  id              String   @id @default(uuid())
+  hostId          String
+  activityTypeId  String
+  startTime       DateTime
+  endTime         DateTime
+  location        String
+  latitude        Float?
+  longitude       Float?
+  maxParticipants Int      @default(10)
+  description     String?  // Rich text content
+  attachments     String?  // JSON array of file URLs
+  createdAt       DateTime @default(now())
+
+  host         User         @relation("Host", fields: [hostId], references: [id])
+  activityType ActivityType @relation(fields: [activityTypeId], references: [id])
+  participants EventParticipant[]
+  comments     Comment[]
+}
+
+model EventParticipant {
+  id        String   @id @default(uuid())
+  eventId   String
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  eventId   String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model PrivacySettings {
+  id                    String   @id @default(uuid())
+  showFullName          Boolean  @default(true)
+  showGender            Boolean  @default(true)
+  showAge               Boolean  @default(true)
+  showWorkUnit          Boolean  @default(true)
+  showMaritalStatus     Boolean  @default(false)
+  showHomeAddress       Boolean  @default(false)
+  showOfficeAddress     Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
+  updatedBy             String?  // userId of admin who updated
+}
+
